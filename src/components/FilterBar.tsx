@@ -1,13 +1,10 @@
-import type { FilterStatus, Category } from '../types/todo';
-import { CATEGORIES } from '../types/todo';
+import type { FilterStatus } from '../types/todo';
 
 interface Props {
   filter: FilterStatus;
   search: string;
-  categoryFilter: Category | 'all';
   onFilterChange: (f: FilterStatus) => void;
   onSearchChange: (s: string) => void;
-  onCategoryChange: (c: Category | 'all') => void;
 }
 
 const FILTERS: { value: FilterStatus; label: string }[] = [
@@ -16,7 +13,7 @@ const FILTERS: { value: FilterStatus; label: string }[] = [
   { value: 'completed', label: '完了' },
 ];
 
-export function FilterBar({ filter, search, categoryFilter, onFilterChange, onSearchChange, onCategoryChange }: Props) {
+export function FilterBar({ filter, search, onFilterChange, onSearchChange }: Props) {
   return (
     <div className="flex flex-col gap-3 mb-4">
       <div className="relative">
@@ -52,33 +49,6 @@ export function FilterBar({ filter, search, categoryFilter, onFilterChange, onSe
             }`}
           >
             {f.label}
-          </button>
-        ))}
-      </div>
-
-      {/* カテゴリフィルター */}
-      <div className="flex flex-wrap gap-1">
-        <button
-          onClick={() => onCategoryChange('all')}
-          className={`px-3 py-1 rounded-lg text-xs font-semibold border transition-all ${
-            categoryFilter === 'all'
-              ? 'bg-violet-100 border-violet-400 text-violet-700'
-              : 'bg-white border-gray-200 text-gray-500 hover:border-gray-300'
-          }`}
-        >
-          全カテゴリ
-        </button>
-        {CATEGORIES.map(cat => (
-          <button
-            key={cat.value}
-            onClick={() => onCategoryChange(cat.value)}
-            className={`px-3 py-1 rounded-lg text-xs font-semibold border transition-all ${
-              categoryFilter === cat.value
-                ? 'bg-violet-100 border-violet-400 text-violet-700'
-                : 'bg-white border-gray-200 text-gray-500 hover:border-gray-300'
-            }`}
-          >
-            {cat.label}
           </button>
         ))}
       </div>

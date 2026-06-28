@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
 import type { Todo, Priority } from '../types/todo';
-import { CATEGORIES } from '../types/todo';
 
 interface Props {
   todo: Todo;
@@ -141,16 +140,6 @@ export function TodoItem({ todo, index, onToggle, onDelete, onEdit, onUpdatePrio
               </div>
             )}
           </div>
-
-          {/* Category badge */}
-          {(() => {
-            const cat = CATEGORIES.find(c => c.value === todo.category);
-            return cat ? (
-              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${cat.color}`}>
-                {cat.label}
-              </span>
-            ) : null;
-          })()}
 
           {/* Due date */}
           {todo.dueDate && (() => {
