@@ -1,15 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { Todo, Priority, Category, FilterStatus } from '../types/todo';
+import type { Todo, Priority, FilterStatus } from '../types/todo';
 
 const STORAGE_KEY = 'todos-v1';
 
 function loadTodos(): Todo[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    const parsed: Todo[] = JSON.parse(raw);
-    // マイグレーション: 古いデータにcategoryがなければ'other'を補完
-    return parsed.map(t => ({ ...t, category: t.category ?? ('other' as Category) }));
+    return raw ? JSON.parse(raw) : [];
   } catch {
     return [];
   }
@@ -23,20 +20,18 @@ export function useTodos() {
   const [todos, setTodos] = useState<Todo[]>(loadTodos);
   const [filter, setFilter] = useState<FilterStatus>('all');
   const [search, setSearch] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState<Category | 'all'>('all');
 
   useEffect(() => {
     saveTodos(todos);
   }, [todos]);
 
-  const addTodo = useCallback((text: string, priority: Priority, category: Category, dueDate?: string) => {
+  const addTodo = useCallback((text: string, priority: Priority, dueDate?: string) => {
     if (!text.trim()) return;
     const newTodo: Todo = {
       id: crypto.randomUUID(),
       text: text.trim(),
       completed: false,
       priority,
-      category,
       createdAt: Date.now(),
       dueDate: dueDate || undefined,
     };
@@ -66,7 +61,7 @@ export function useTodos() {
 
   const reorderTodos = useCallback((fromIndex: number, toIndex: number) => {
     setTodos(prev => {
-      const filtered = getFilteredTodos(prev, filter, search, categoryFilter);
+      const filtered = getFilteredTodos(prev, filter, search);
       const item = filtered[fromIndex];
       const newFiltered = [...filtered];
       newFiltered.splice(fromIndex, 1);
@@ -75,9 +70,9 @@ export function useTodos() {
       const rest = prev.filter(t => !ids.has(t.id));
       return [...newFiltered, ...rest];
     });
-  }, [filter, search, categoryFilter]);
+  }, [filter, search]);
 
-  const filteredTodos = getFilteredTodos(todos, filter, search, categoryFilter);
+  const filteredTodos = getFilteredTodos(todos, filter, search);
   const activeCount = todos.filter(t => !t.completed).length;
   const completedCount = todos.filter(t => t.completed).length;
 
@@ -86,12 +81,10 @@ export function useTodos() {
     allTodos: todos,
     filter,
     search,
-    categoryFilter,
     activeCount,
     completedCount,
     setFilter,
     setSearch,
-    setCategoryFilter,
     addTodo,
     toggleTodo,
     deleteTodo,
@@ -102,14 +95,13 @@ export function useTodos() {
   };
 }
 
-function getFilteredTodos(todos: Todo[], filter: FilterStatus, search: string, categoryFilter: Category | 'all'): Todo[] {
+function getFilteredTodos(todos: Todo[], filter: FilterStatus, search: string): Todo[] {
   return todos.filter(t => {
     const matchesFilter =
       filter === 'all' ||
       (filter === 'active' && !t.completed) ||
       (filter === 'completed' && t.completed);
     const matchesSearch = !search || t.text.toLowerCase().includes(search.toLowerCase());
-    const matchesCategory = categoryFilter === 'all' || t.category === categoryFilter;
-    return matchesFilter && matchesSearch && matchesCategory;
+    return matchesFilter && matchesSearch;
   });
 }

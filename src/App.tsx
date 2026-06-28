@@ -10,12 +10,10 @@ export default function App() {
     todos,
     filter,
     search,
-    categoryFilter,
     activeCount,
     completedCount,
     setFilter,
     setSearch,
-    setCategoryFilter,
     addTodo,
     toggleTodo,
     deleteTodo,
@@ -41,10 +39,8 @@ export default function App() {
         <FilterBar
           filter={filter}
           search={search}
-          categoryFilter={categoryFilter}
           onFilterChange={setFilter}
           onSearchChange={setSearch}
-          onCategoryChange={setCategoryFilter}
         />
         <TodoList
           todos={todos}
