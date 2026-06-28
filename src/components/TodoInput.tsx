@@ -1,19 +1,21 @@
 import { useState, useRef } from 'react';
-import type { Priority } from '../types/todo';
+import type { Priority, Category } from '../types/todo';
+import { CATEGORIES } from '../types/todo';
 
 interface Props {
-  onAdd: (text: string, priority: Priority, dueDate?: string) => void;
+  onAdd: (text: string, priority: Priority, category: Category, dueDate?: string) => void;
 }
 
-const PRIORITY_OPTIONS: { value: Priority; label: string; color: string }[] = [
-  { value: 'low', label: '低', color: 'text-blue-500' },
-  { value: 'medium', label: '中', color: 'text-yellow-500' },
-  { value: 'high', label: '高', color: 'text-red-500' },
+const PRIORITY_OPTIONS: { value: Priority; label: string }[] = [
+  { value: 'low',    label: '低' },
+  { value: 'medium', label: '中' },
+  { value: 'high',   label: '高' },
 ];
 
 export function TodoInput({ onAdd }: Props) {
   const [text, setText] = useState('');
   const [priority, setPriority] = useState<Priority>('medium');
+  const [category, setCategory] = useState<Category>('work');
   const [dueDate, setDueDate] = useState('');
   const [showOptions, setShowOptions] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -21,10 +23,11 @@ export function TodoInput({ onAdd }: Props) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!text.trim()) return;
-    onAdd(text, priority, dueDate || undefined);
+    onAdd(text, priority, category, dueDate || undefined);
     setText('');
     setDueDate('');
     setPriority('medium');
+    setCategory('work');
     setShowOptions(false);
     inputRef.current?.focus();
   };
@@ -71,6 +74,27 @@ export function TodoInput({ onAdd }: Props) {
               ))}
             </div>
           </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-gray-500 font-medium">カテゴリ:</span>
+            <div className="flex gap-1">
+              {CATEGORIES.map(opt => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setCategory(opt.value)}
+                  className={`px-3 py-1 rounded-lg text-xs font-semibold border transition-all ${
+                    category === opt.value
+                      ? 'bg-violet-100 border-violet-400 text-violet-700'
+                      : 'bg-white border-gray-200 text-gray-500 hover:border-gray-300'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="flex items-center gap-2">
             <span className="text-xs text-gray-500 font-medium">期日:</span>
             <input
